@@ -6,7 +6,7 @@ class DBConnector:
 
     # Dict containing SQL queries related to database.
     sql_dict = {
-        'obtener': 'select * from cliente',
+        'getClient': 'select * from cliente where cedula = %s',
         'saldo_actual': 'select saldo from Cuenta where cliente_id = %s and cuenta_id = %s',
         'debito': ' update Cuenta set saldo = saldo - %s where cliente_id = %s and cuenta_id = %s',
         'deposito': ' update Cuenta set saldo = saldo + %s where cliente_id = %s and cuenta_id = %s',
