@@ -2,6 +2,7 @@ import DB_utility
 import procesos
 
 conexion=DB_utility.DBConnector()
+optionMenu={}
 
 def initialMessage():
     print('Hola soy CORA 😉, tu asistente virtual !! \n\n'
@@ -14,8 +15,9 @@ def initialMessage():
         #print('Tiene cuenta')
         print('\n')
         result=procesos.login()
-        print(result)
-       # showMenu()
+        if(result==True):
+            showMenu()
+
     else:
         print('No tiene cuenta')
 
@@ -29,5 +31,15 @@ def showMenu():
           '5 Desbloqueo de tarjetas \n'
           '6 Consultas Generales \n'
           '7 Dejar un comentario \n')
+
+    optionMenu={"1": "Agendar_Cita", "2": "Consulta_Cuenta", "3": "Consulta_Millas", "4": "Bloqueo_Tarjeta", "5":
+                "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
+
+    answerMenu=input()
+    print(optionMenu[answerMenu])
+    match optionMenu[answerMenu]:
+        case "Agendar_Cita":
+            procesos.Agendar_Cita()
+            showMenu()
 
 initialMessage()
