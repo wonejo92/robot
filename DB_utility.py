@@ -6,12 +6,21 @@ class DBConnector:
 
     # Dict containing SQL queries related to database.
     sql_dict = {
-        'obtener': 'select * from cliente',
-        'saldo_actual': 'select saldo from Cuenta where cliente_id = %s and cuenta_id = %s',
-        'debito': ' update Cuenta set saldo = saldo - %s where cliente_id = %s and cuenta_id = %s',
-        'deposito': ' update Cuenta set saldo = saldo + %s where cliente_id = %s and cuenta_id = %s',
-        'mis_cuentas': 'select numero_cuenta from CUENTA_FINANCIERA where cliente_cedula = %s',
-        'realizar_transferencia': 'select realizar_transferencia(%s, %s, %s, %s, %s, %s)',
+        'getClient': 'select * from cliente where cedula = %s',
+        'getSchedule': 'select dia_semana from horario where disponibilidad='+"'Disponible'"+ 'group by dia_semana',
+        'getHourSchedule': 'select hora from horario where disponibilidad='+"'Disponible'"+ ' and dia_semana= %s',
+        'getIdSchedule': 'select idHorario from horario where dia_semana= %s and hora= %s',
+        'defineSchedule': ' update horario set disponibilidad='+"'Ocupado'"+ ' where idHorario= %s',
+        'createAppointment': 'insert into cita values (%s, %s, %s, %s, %s, %s,%s )',
+
+        'accountInquiry': 'select numeroDeCuenta, fechaCreacion, monto, tipo from cuenta cu, cliente cli'
+                          ' where cu.Cliente_idCliente = cli.idCliente and cli.nombres= %s',
+
+        'obtenerIdTarjeta': 'select idTarjeta from tarjeta where Cliente_idCliente = %s',
+        'obtenerMillas': 'select cantidadMillas from millas where Tarjeta_idTarjeta = %s',
+        'comprobarTarjeta': 'select numeroTarjeta from tarjeta where Cliente_idCliente = %s',
+        'bloquearTarjeta': "UPDATE tarjeta SET estado='Inactiva' where tipoTarjeta = %s and Cliente_idCliente = %s",
+        'desbloquearTarjeta': "UPDATE tarjeta SET estado='Activa' where tipoTarjeta = %s and Cliente_idCliente = %s",
         'buscar_usuario': 'select cedula from CLIENTE'
     }
 
@@ -44,7 +53,7 @@ class DBConnector:
         """
         cursor = self.db.cursor()
         if parameters is not None:
-            print(sql_query, '___', parameters)
+            #print(sql_query, '___', parameters)
             cursor.execute(sql_query, parameters)
             return cursor.fetchall()
         else:
