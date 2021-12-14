@@ -75,3 +75,17 @@ def Agendar_Cita():
     print("Genial tu cita esta agendada 😊"
           "Recuerda llegar 10 antes  con el siguiente codigo : \n"
           ,codigoCita)
+
+
+def Consulta_Cuenta():
+    print(currentUser)
+    print("Para continuar con el proceso!! \n")
+    print("Escribe el número de verificación que le hemos enviado a su correo electrónica ")
+    account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
+    nombre=currentUser["nombres"]
+    print("Bienvenido", nombre ," aquí están los datos de tu cuenta.\n")
+
+    print("Numero de cuenta:",account[0][0],"\n"
+          "Fecha de creacion:",account[0][1],"\n"
+          "Monto en USD:",account[0][2],"\n"
+          "Tipo :",account[0][3],"\n")

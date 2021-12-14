@@ -17,7 +17,6 @@ def initialMessage():
         result=procesos.login()
         if(result==True):
             showMenu()
-
     else:
         print('No tiene cuenta')
 
@@ -41,5 +40,9 @@ def showMenu():
         case "Agendar_Cita":
             procesos.Agendar_Cita()
             showMenu()
+        case "Consulta_Cuenta":
+            procesos.Consulta_Cuenta()
+            showMenu()
+
 
 initialMessage()

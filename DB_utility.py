@@ -12,6 +12,12 @@ class DBConnector:
         'getIdSchedule': 'select idHorario from horario where dia_semana= %s and hora= %s',
         'defineSchedule': ' update horario set disponibilidad='+"'Ocupado'"+ ' where idHorario= %s',
         'createAppointment': 'insert into cita values (%s, %s, %s, %s, %s, %s,%s )',
+
+        'accountInquiry': 'select numeroDeCuenta, fechaCreacion, monto, tipo from cuenta cu, cliente cli'
+                          ' where cu.Cliente_idCliente = cli.idCliente and cli.nombres= %s',
+
+
+
         'buscar_usuario': 'select cedula from CLIENTE'
     }
 
