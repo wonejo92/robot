@@ -89,3 +89,64 @@ def Consulta_Cuenta():
           "Fecha de creacion:",account[0][1],"\n"
           "Monto en USD:",account[0][2],"\n"
           "Tipo :",account[0][3],"\n")
+
+def obtenerMillas():
+    numeroTarjeta = conexion.execute_query(conexion.sql_dict.get("obtenerIdTarjeta"),(currentUser['id'],))
+    cantidadMillas = conexion.execute_query(conexion.sql_dict.get('obtenerMillas'),(numeroTarjeta[0][0],))
+    print('Estimado cliente dispone de: ',cantidadMillas[0][0],' millas')
+    print('Premios disponibles para canjear: ')
+    #print(type(cantidadMillas[0][0]))
+    premiosCanjeables(int(cantidadMillas[0][0]))
+
+def premiosCanjeables(cantidadDeMillas):
+    if cantidadDeMillas < 89 :
+        print('No cuentas actualmente con premios canjeables')
+    if cantidadDeMillas <= 100 and cantidadDeMillas >= 90:
+        print('Felicidades ! acabas de ganar una orden de consumo de:' ,'\n')
+        print('20.00 dolares en Pizza Hut, presentate en el establecimiento para','\n')
+        print('reclamar el premio')
+    if cantidadDeMillas <= 500 and cantidadDeMillas >= 300:
+        print('Felicidades ! acabas de ganar un noche gratis en el hostal','\n',
+              'Rancho Dorado, acercate al hostal para reclamar tu premio')
+    if cantidadDeMillas <= 5000 and cantidadDeMillas >= 4000:
+        print('Felicidades ! acabas de ganar un vuelo a Costa Rica de ida y vuelta','\n',
+              'ponte en contacto con nosotros para darte mas información')
+
+def ejecutarSentencia(sentencia,parametro):
+    dato = conexion.execute_query(conexion.sql_dict.get(sentencia),(parametro,))
+    return dato
+
+def ejecutarSentencia2(sentencia,parametro,parametro2):
+    conexion.execute_query(conexion.sql_dict.get(sentencia), (parametro, parametro2,))
+    conexion.execute_query('commit', None)
+
+def bloqueoDesbloqueoTarjeta(estado):
+    print("1. Debito",'\n')
+    print('2. Credito','\n')
+    print("Escriba el tipo de tarjeta")
+    tipo = int(input())
+    dato = ejecutarSentencia('comprobarTarjeta',currentUser['id'])
+    if dato[0][0] is not None:
+        print('Escribe el código de verficación enviado a tu correo electronico')
+        codigo = input()
+        correo.send_email(currentUser['correo'],currentUser['token'])
+        if codigo == currentUser['token']:
+            if estado == 'bloquear':
+                if tipo == 1:
+                    ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
+                    print('Su tarjeta ha sido bloqueada')
+                if tipo == 2:
+                    ejecutarSentencia2('bloquearTarjeta', 'Credito', currentUser['id'])
+                    print('Su tarjeta ha sido bloqueada')
+            if estado == 'desbloquear':
+                if tipo == 1:
+                    ejecutarSentencia2('desbloquearTarjeta', 'Debito', currentUser['id'])
+                    print('Su tarjeta ha sido desbloqueada')
+                if tipo == 2:
+                    ejecutarSentencia2('desbloquearTarjeta', 'Credito', currentUser['id'])
+                    print('Su tarjeta ha sido desbloqueada')
+    else:
+        print('no se encontraron coincidencias')
+
+def Consultas_Generales():
+    print('funciona')

@@ -1,6 +1,7 @@
 import DB_utility
 import procesos
 
+
 conexion=DB_utility.DBConnector()
 optionMenu={}
 
@@ -35,7 +36,7 @@ def showMenu():
                 "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
 
     answerMenu=input()
-    print(optionMenu[answerMenu])
+    #print(optionMenu[answerMenu])
     match optionMenu[answerMenu]:
         case "Agendar_Cita":
             procesos.Agendar_Cita()
@@ -43,6 +44,16 @@ def showMenu():
         case "Consulta_Cuenta":
             procesos.Consulta_Cuenta()
             showMenu()
-
+        case "Consulta_Millas":
+            procesos.obtenerMillas()
+            showMenu()
+        case "Bloqueo_Tarjeta":
+            procesos.bloqueoDesbloqueoTarjeta('bloquear')
+            showMenu()
+        case "Desbloqueo_Tarjeta":
+            procesos.bloqueoDesbloqueoTarjeta('desbloquear')
+            showMenu()
+        case "Consultas_Generales":
+            procesos.Consultas_Generales()
 
 initialMessage()

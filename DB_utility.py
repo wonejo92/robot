@@ -16,8 +16,11 @@ class DBConnector:
         'accountInquiry': 'select numeroDeCuenta, fechaCreacion, monto, tipo from cuenta cu, cliente cli'
                           ' where cu.Cliente_idCliente = cli.idCliente and cli.nombres= %s',
 
-
-
+        'obtenerIdTarjeta': 'select idTarjeta from tarjeta where Cliente_idCliente = %s',
+        'obtenerMillas': 'select cantidadMillas from millas where Tarjeta_idTarjeta = %s',
+        'comprobarTarjeta': 'select numeroTarjeta from tarjeta where Cliente_idCliente = %s',
+        'bloquearTarjeta': "UPDATE tarjeta SET estado='Inactiva' where tipoTarjeta = %s and Cliente_idCliente = %s",
+        'desbloquearTarjeta': "UPDATE tarjeta SET estado='Activa' where tipoTarjeta = %s and Cliente_idCliente = %s",
         'buscar_usuario': 'select cedula from CLIENTE'
     }
 
