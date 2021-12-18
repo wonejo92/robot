@@ -1,6 +1,8 @@
 import correo
 import DB_utility
 import random
+
+valor=str
 conexion=DB_utility.DBConnector()
 
 
@@ -30,7 +32,6 @@ def login():
 
     else:
         return False
-
 
 
 def Agendar_Cita():
