@@ -2,7 +2,7 @@ import logging
 from os import curdir
 import random
 from typing import Text
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, update
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, constants, update
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, conversationhandler,
                           )
 import correo
@@ -27,6 +27,8 @@ agendarCitaP2 = 2.1
 agendarCitaP3 = 2.2
 agendarCitaP4 = 2.3
 agendarCitaP6 = 2.4
+
+consultarP1 = 3.1
 
 # Variables
 user = {}
@@ -105,9 +107,10 @@ def loginP3(update: Update, context: CallbackContext):
         update.message.reply_text('No hemos encontrado tu cuenta !')
 
 
+
 def menu(update: Update, context: CallbackContext):
-    update.message.reply_text(
-        '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Consultas Generales \n 7. Dejar un comentario \n')
+    mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Consultas Generales \n 7. Dejar un comentario \n'
+    update.message.reply_text(mensaje)
     return estadoMenuP1
 
 
@@ -120,10 +123,10 @@ def menuP1(update: Update, context: CallbackContext):
             return citaP1(update, context)
 
         case "Consulta_Cuenta":
-            update.message.reply_text('Consulta de cuenta')
+            return consultaCuentaP1(update,context)
 
         case "Consulta_Millas":
-            update.message.reply_text('Consulta millas')
+            return consultaMillasP1(update,context)
 
         case "Bloqueo_Tarjeta":
             update.message.reply_text('bloqueo tarjeta')
@@ -134,7 +137,7 @@ def menuP1(update: Update, context: CallbackContext):
         case "Consultas_Generales":
             update.message.reply_text('consultas generales')
 
-
+#--------------Agendar Cita------------------
 def citaP1(update: Update, context: CallbackContext):
     update.message.reply_text(
         'Procederemos ah agendarte una cita \n \n Estos son los días disponibles: ')
@@ -199,6 +202,11 @@ def citaP6(update: Update, context: CallbackContext):
     mensaje2 = 'Genial tu cita está agendada 😊 \n Recuerda llegar 10 antes  con el siguiente codigo : '+'\t' + str(codigoCita)
     update.message.reply_text(mensaje2)
 
+#--------------Consulta de cuenta------------------
+def consultaCuentaP1(update: Update, context: CallbackContext):
+    account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
+    mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
+    update.message.reply_text(mensaje)
 
 
 
@@ -207,16 +215,10 @@ def citaP6(update: Update, context: CallbackContext):
 
 
 
-   
- 
+
+
+
     
-
-
-
-
-    
-
-
 
 
 def main() -> None:
@@ -236,7 +238,8 @@ def main() -> None:
             estadologinP2: [MessageHandler(Filters.text, loginP3)],
             estadoMenuP1: [MessageHandler(Filters.text, menuP1)],
             agendarCitaP4:[MessageHandler(Filters.text, citaP4)],
-            agendarCitaP6:[MessageHandler(Filters.text,citaP6)]
+            agendarCitaP6:[MessageHandler(Filters.text,citaP6)],
+            
 
         },
         fallbacks=[],
