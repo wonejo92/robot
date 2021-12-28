@@ -30,6 +30,8 @@ agendarCitaP6 = 2.4
 
 consultarP1 = 3.1
 
+
+
 # Variables
 user = {}
 currentUser = {}
@@ -39,6 +41,7 @@ dias = []
 day = ''
 hour = ''
 horas2 = []
+millas = ''
 
 
 GENDER, PHOTO, LOCATION, BIO = range(4)
@@ -208,7 +211,32 @@ def consultaCuentaP1(update: Update, context: CallbackContext):
     mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
     update.message.reply_text(mensaje)
 
+#--------------Consulta de millas------------------
+def consultaMillasP1(update: Update, context: CallbackContext):
+    global millas 
+    numeroTarjeta = conexion.execute_query(conexion.sql_dict.get("obtenerIdTarjeta"),(currentUser['id'],))
+    cantidadMillas = conexion.execute_query(conexion.sql_dict.get('obtenerMillas'),(numeroTarjeta[0][0],))
+    millas = cantidadMillas[0][0]
+    mensaje = 'Sus millas son:'+ '\t' + str(cantidadMillas[0][0])
+    update.message.reply_text(mensaje)
+    return consultaMillasP2(update, context)
 
+def consultaMillasP2(update: Update, context: CallbackContext):
+    mensaje = premiosCanjeables(millas)
+    update.message.reply_text(mensaje)
+
+
+def premiosCanjeables(cantidadDeMillas):
+    cantidadDeMillas = int(cantidadDeMillas)
+    if cantidadDeMillas < 89 :
+        return 'No cuentas actualmente con premios canjeables'
+    if cantidadDeMillas <= 100 and cantidadDeMillas >= 90:
+        return 'Felicidades ! acabas de ganar una orden de consumo de: \n 20.00 dolares en Pizza Hut, presentate en el establecimiento para \n reclamar el premio'
+    if cantidadDeMillas <= 500 and cantidadDeMillas >= 300:
+        return'Felicidades ! acabas de ganar un noche gratis en el hostal \n Rancho Dorado, acercate al hostal para reclamar tu premio'
+    if cantidadDeMillas <= 5000 and cantidadDeMillas >= 4000:
+        return 'Felicidades ! acabas de ganar un vuelo a Costa Rica de ida y vuelta ponte en contacto con nosotros para darte mas información'
+    
 
 
 
