@@ -1,34 +1,257 @@
-import constants as keys
-from telegram.ext import *
-import respuestas 
+import logging
+from os import curdir
+import random
+from typing import Text
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, update
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, conversationhandler,
+                          )
+import correo
+import DB_utility
+import procesos
+conexion = DB_utility.DBConnector()
 
-print('Iniciando bot')
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 
-def start_command(update,context):
-    update.message.reply_text('Escribeme !')
+logger = logging.getLogger(__name__)
+# Estados
+estadologin = 0
+estadologinP1 = 0.1
+estadologinP2 = 0.2
+estadomenu = 1
+estadoMenuP1 = 1.1
+agendarCitaP1 = 2
+agendarCitaP2 = 2.1
+agendarCitaP3 = 2.2
+agendarCitaP4 = 2.3
+agendarCitaP6 = 2.4
 
-def help_command(update,context):
-    update.message.reply_text('En que puedo ayudarte ?')
+# Variables
+user = {}
+currentUser = {}
+diasDisponibles = []
+horasDisponibles = []
+dias = []
+day = ''
+hour = ''
+horas2 = []
 
-def handle_message(update,context):
-    text = str(update.message.text).lower()
-    response = respuestas.sample_responses(text)
 
-    update.message.reply_text(response)
+GENDER, PHOTO, LOCATION, BIO = range(4)
 
-def error(update,context):
-    print(f'Update {update} caused error {context.error} ')
 
-def main():
-    updater = Updater(keys.API_KEY, use_context = True)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler('start', start_command))
-    dp.add_handler(CommandHandler('help', help_command))
-    dp.add_handler(MessageHandler(Filters.text,handle_message))
-    dp.add_error_handler(error)
-    updater.start_polling()
-    updater.idle()
+def start(update: Update, context: CallbackContext):
+    """Starts the conversation and asks the user about their gender."""
+    update.message.reply_text('Hola soy CORA 😉, tu asistente virtual !! \n\n '
+                              '¿ Tienes cuenta con nosotros ? \n  SI \n  NO \n')
+    return estadologin
+
+# def cancel(update: Update, context: CallbackContext) -> int:
+#     """Cancels and ends the conversation."""
+#     user = update.message.from_user
+#     logger.info("User %s canceled the conversation.", user.first_name)
+#     update.message.reply_text(
+#         'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+#     )
+#     return ConversationHandler.END
+
+
+"""Funciones para el logeo del cliente"""
+
+
+def loginP1(update: Update, context: CallbackContext):
+    text = update.message.text
+    if(text == 'si'):
+        update.message.reply_text('Ingresa tu Numero de Cedula !')
+        return estadologinP1
+    else:
+        update.message.reply_text(
+            'Procederemos a agendarte una cita para crearte una cuenta.')
+
+
+def loginP2(update: Update, context: CallbackContext):
+    global user
+    cedula = update.message.text
+    print("Mensaje en loginp2", cedula)
+    user = conexion.execute_query(
+        conexion.sql_dict.get('getClient'), (cedula,))
+    email = user[0][4]
+    token = user[0][5]
+    correo.send_email(email, token)
+    update.message.reply_text(
+        'Ingresa el codigo que se te envio al correo Electronico registrado !')
+    return estadologinP2
+
+
+def loginP3(update: Update, context: CallbackContext):
+    global user
+    global currentUser
+    codigo = update.message.text
+    id = user[0][0]
+    cedula = user[0][1]
+    nombres = user[0][2]
+    apellidos = user[0][3]
+    email = user[0][4]
+    token = user[0][5]
+    if(codigo == token):
+        # print("Persona Verificada")
+        currentUser = {"id": id, "cedula": cedula, "nombres": nombres, "apellidos": apellidos, "correo": email,
+                       "token": token}
+        # print(currentUser)
+        return menu(update, context)
+    else:
+        update.message.reply_text('No hemos encontrado tu cuenta !')
+
+
+def menu(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Consultas Generales \n 7. Dejar un comentario \n')
+    return estadoMenuP1
+
+
+def menuP1(update: Update, context: CallbackContext):
+    text = update.message.text
+    optionMenu = {"1": "Agendar_Cita", "2": "Consulta_Cuenta", "3": "Consulta_Millas", "4": "Bloqueo_Tarjeta", "5":
+                  "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
+    match optionMenu[text]:
+        case "Agendar_Cita":
+            return citaP1(update, context)
+
+        case "Consulta_Cuenta":
+            update.message.reply_text('Consulta de cuenta')
+
+        case "Consulta_Millas":
+            update.message.reply_text('Consulta millas')
+
+        case "Bloqueo_Tarjeta":
+            update.message.reply_text('bloqueo tarjeta')
+
+        case "Desbloqueo_Tarjeta":
+            update.message.reply_text('desebloqueo tarjeta')
+
+        case "Consultas_Generales":
+            update.message.reply_text('consultas generales')
+
+
+def citaP1(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        'Procederemos ah agendarte una cita \n \n Estos son los días disponibles: ')
+    return citaP2(update, context)
+
+#Se muestran los dias disponibles
+def citaP2(update: Update, context: CallbackContext):
+    global diasDisponibles
+    global dias
+    horario = conexion.execute_query(conexion.sql_dict.get("getSchedule"), ())
+    for i in range(len(horario)):
+        diasDisponibles.append(horario[i][0])
+    for j in range(len(diasDisponibles)):
+        dias.append(diasDisponibles[j].capitalize())
+    update.message.reply_text('\n'.join(map(str, dias)))
+    #dias = ''
+    return citaP3(update,context)
+
+
+
+def citaP3(update: Update, context: CallbackContext):
+    update.message.reply_text('Ingresa el dia para la cita')
+    return agendarCitaP4
+   
+
+#se escoge el dia y se muestra el horario de acuerdo al dia elegido
+def citaP4(update: Update, conetext: CallbackContext):
+    global horasDisponibles
+    global horas2
+    global day
+    day = update.message.text
+    mensaje = 'Horarios disponibles para el día: ' + day.capitalize()
+    update.message.reply_text(mensaje)
+    horas = conexion.execute_query(
+        conexion.sql_dict.get("getHourSchedule"), (day,))
+    for h in range(len(horas)):
+        horasDisponibles.append(horas[h][0])
+    for k in range(len(horasDisponibles)):
+        verHorario = str(k+1) +'.' + '\t' + horasDisponibles[k]
+        horas2.append(verHorario)
+    update.message.reply_text('\n'.join(map(str,horas2)))
+    #horas2 = ''
+    return citaP5(update,conetext)
+
+def citaP5(update: Update, context: CallbackContext):
+    update.message.reply_text('Ingresa la hora que necesites')
+    return agendarCitaP6
+
+#se registra la cita usando la fecha y la hora, y se da al usuario un codigo para que se presente ante las oficinas con el mismo
+def citaP6(update: Update, context: CallbackContext):
+    numHora = int(update.message.text)
+    hora = horasDisponibles[numHora-1]
+    consultaId=conexion.execute_query(conexion.sql_dict.get("getIdSchedule"),(day,hora))
+    idhora=consultaId[0][0]
+    mensaje = 'Todo listo ! \n la cita se agendara a nombre de :\t' + currentUser["nombres"] + '\t' + currentUser["apellidos"]
+    update.message.reply_text(mensaje)
+    conexion.execute_query(conexion.sql_dict.get("defineSchedule"),(idhora,))
+    conexion.execute_query('commit', None)
+    codigoCita=random.randint(1000, 9999)
+    conexion.execute_query(conexion.sql_dict.get("createAppointment"),(0,codigoCita,day,hora,'SI',currentUser["id"],idhora))
+    conexion.execute_query('commit', None)
+    mensaje2 = 'Genial tu cita está agendada 😊 \n Recuerda llegar 10 antes  con el siguiente codigo : '+'\t' + str(codigoCita)
+    update.message.reply_text(mensaje2)
+
+
+
+
+
+
+
+
+
+   
+ 
     
 
-main()
 
+
+
+    
+
+
+
+
+def main() -> None:
+    """Run the bot."""
+    # Create the Updater and pass it your bot's token.
+    updater = Updater("2072414162:AAHuEcnXbkKTCUucD0wRFy3l7bVkT08PiPs")
+
+    # Get the dispatcher to register handlers
+    dispatcher = updater.dispatcher
+
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            estadologin: [MessageHandler(Filters.text, loginP1)],
+            estadologinP1: [MessageHandler(Filters.text, loginP2)],
+            estadologinP2: [MessageHandler(Filters.text, loginP3)],
+            estadoMenuP1: [MessageHandler(Filters.text, menuP1)],
+            agendarCitaP4:[MessageHandler(Filters.text, citaP4)],
+            agendarCitaP6:[MessageHandler(Filters.text,citaP6)]
+
+        },
+        fallbacks=[],
+    )
+
+    dispatcher.add_handler(conv_handler)
+
+    # Start the Bot
+    updater.start_polling()
+    print("BOT IS RUNNING")
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+
+main()
