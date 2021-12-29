@@ -30,6 +30,9 @@ agendarCitaP6 = 2.4
 
 consultarP1 = 3.1
 
+tarjetaP2 = 4
+tarjetaP4 = 4.2
+
 
 
 # Variables
@@ -42,6 +45,11 @@ day = ''
 hour = ''
 horas2 = []
 millas = ''
+estadoTarjeta = ''
+tipoTarjeta = ''
+mensajeTarjeta = ''
+
+
 
 
 GENDER, PHOTO, LOCATION, BIO = range(4)
@@ -132,10 +140,14 @@ def menuP1(update: Update, context: CallbackContext):
             return consultaMillasP1(update,context)
 
         case "Bloqueo_Tarjeta":
-            update.message.reply_text('bloqueo tarjeta')
+            global estadoTarjeta 
+            estadoTarjeta = 'bloquear'
+            return bloqueoDesbloqueoTarjetaP1(update, context)
 
         case "Desbloqueo_Tarjeta":
-            update.message.reply_text('desebloqueo tarjeta')
+            estadoTarjeta ='desbloquear'
+            return bloqueoDesbloqueoTarjetaP1(update, context)
+            
 
         case "Consultas_Generales":
             update.message.reply_text('consultas generales')
@@ -237,17 +249,68 @@ def premiosCanjeables(cantidadDeMillas):
     if cantidadDeMillas <= 5000 and cantidadDeMillas >= 4000:
         return 'Felicidades ! acabas de ganar un vuelo a Costa Rica de ida y vuelta ponte en contacto con nosotros para darte mas información'
     
+#--------------Bloque/Desbloqueo de tarjeta según tipo------------------
 
 
+def ejecutarSentencia(sentencia,parametro):
+    dato = conexion.execute_query(conexion.sql_dict.get(sentencia),(parametro,))
+    return dato
 
-
-
-
-
-
-
+def ejecutarSentencia2(sentencia,parametro,parametro2):
+    conexion.execute_query(conexion.sql_dict.get(sentencia), (parametro, parametro2,))
+    conexion.execute_query('commit', None)
     
 
+def bloquearDesbloquear(estado, tipo):
+    if estado == 'bloquear':
+        if tipo == 'debito':
+            ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
+            mensaje = 'Su tarjeta de débito ha sido bloqueada'
+        if tipo == 'credito':
+            ejecutarSentencia2('bloquearTarjeta', 'Credito', currentUser['id'])
+            mensaje = 'Su tarjeta de crédito ha sido bloqueada'
+    if estado  == 'desbloquear':
+        if tipo == 'debito':
+            ejecutarSentencia2('desbloquearTarjeta', 'Debito', currentUser['id'])
+            mensaje = 'Su tarjeta de débito ha sido desbloqueada'
+        if tipo == 'credito':
+            ejecutarSentencia2('desbloquearTarjeta', 'Credito', currentUser['id'])
+            mensaje = 'Su tarjeta de crédito ha sido desbloqueada'
+
+    return mensaje 
+
+
+def bloqueoDesbloqueoTarjetaP1(update: Update, context: CallbackContext):
+    mensaje = '1. Débito \n 2. Crédito \n \n Escriba el tipo de tarjeta'
+    update.message.reply_text(mensaje)
+    return tarjetaP2
+
+
+
+def bloqueoDesbloqueoTarjetaP2(update: Update, context: CallbackContext):
+    global tipoTarjeta 
+    tipoTarjeta = update.message.text
+    dato = ejecutarSentencia('comprobarTarjeta',currentUser['id'])
+    if dato[0][0] is not None:
+        correo.send_email(currentUser['correo'],currentUser['token'])
+        return bloqueoDesbloqueoTarjeta3(update,context)
+
+def bloqueoDesbloqueoTarjeta3(update: Update, context: CallbackContext):
+    update.message.reply_text('Escribe el código de verficación enviado a tu correo electronico')
+    return tarjetaP4
+
+def bloqueoDesbloqueoTarjeta4(update: Update, context: CallbackContext):
+    global mensajeTarjeta
+    codigo = update.message.text
+    print(codigo,estadoTarjeta,tipoTarjeta)
+    if codigo == currentUser['token']:
+        mensajeTarjeta = bloquearDesbloquear(estadoTarjeta,tipoTarjeta)
+        return bloqueoDesbloqueoTarjetaP5(update,context)
+    
+def bloqueoDesbloqueoTarjetaP5(update: Update, context: CallbackContext):
+    global mensajeTarjeta
+    update.message.reply_text(mensajeTarjeta)
+        
 
 def main() -> None:
     """Run the bot."""
@@ -267,6 +330,9 @@ def main() -> None:
             estadoMenuP1: [MessageHandler(Filters.text, menuP1)],
             agendarCitaP4:[MessageHandler(Filters.text, citaP4)],
             agendarCitaP6:[MessageHandler(Filters.text,citaP6)],
+            tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
+            tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)]
+            
             
 
         },

@@ -117,7 +117,7 @@ def showMenu():
         case "Consulta_Millas":
             procesos.obtenerMillas()
             showMenu()
-        case "Bloqueo_Tarjeta":
+        case "Bloqueo_T4arjeta":
             procesos.bloqueoDesbloqueoTarjeta('bloquear')
             showMenu()
         case "Desbloqueo_Tarjeta":
@@ -125,3 +125,5 @@ def showMenu():
             showMenu()
         case "Consultas_Generales":
             procesos.Consultas_Generales()
+
+initialMessage('1')
