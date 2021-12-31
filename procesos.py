@@ -12,7 +12,6 @@ horasDisponibles=[]
 
 def login():
     global currentUser
-    print('Hola necesito tu Cedula de identidad.')
     cedula= input()
     user=conexion.execute_query(conexion.sql_dict.get('getClient'),(cedula,))
     id=user[0][0]
