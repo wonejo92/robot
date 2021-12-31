@@ -1,3 +1,4 @@
+import RNN.RNN as funcionRNN
 import logging
 from os import curdir
 import random
@@ -132,7 +133,8 @@ def analisiSentimientos(update: Update, context: CallbackContext ):
 
 def analisiSentimientosP2(update: Update, context: CallbackContext ):
     text=update.message.text
-    print("Comnetario a analizar", text)
+    funcionRNN.predecir(text)
+    
 
 
 
@@ -345,7 +347,7 @@ def main() -> None:
             agendarCitaP6:[MessageHandler(Filters.text,citaP6)],
             tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
             tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)],
-            analisisSentimiento:[MessageHandler(Filters.text,)]
+            analisisSentimiento:[MessageHandler(Filters.text,analisiSentimientosP2)]
             
             
 

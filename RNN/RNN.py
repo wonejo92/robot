@@ -11,6 +11,8 @@ import string
 import pickle
 from translate import Translator
 print("Librerias Importadas")
+#nltk.download()
+
 
 
 #PROCESAMIENTO DE LENGUAJE NATURAL
@@ -60,11 +62,11 @@ import pickle
 
 def load_models():
     # Load the vectoriser.
-    file = open('vectoriser.pickle', 'rb')
+    file = open('RNN/vectoriser.pickle', 'rb')
     vectoriser = pickle.load(file)
     file.close()
     # Load the LR Model.
-    file = open('logisticRegression.pickle', 'rb')
+    file = open('RNN/logisticRegression.pickle', 'rb')
     lg = pickle.load(file)
     file.close()
     return vectoriser, lg
@@ -75,6 +77,9 @@ def predecir(comentario:str):
     translator = Translator(from_lang="spanish", to_lang="english")
     translation = translator.translate(comentario)
     print(translation)
+    vectoriser, lg = load_models()
+    text = [translation]
+    predict(vectoriser, lg, text)
 
 #if __name__ == "__main__":
     # Loading the models.
