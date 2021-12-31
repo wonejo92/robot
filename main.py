@@ -332,8 +332,6 @@ def main() -> None:
             agendarCitaP6:[MessageHandler(Filters.text,citaP6)],
             tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
             tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)]
-            
-            
 
         },
         fallbacks=[],
