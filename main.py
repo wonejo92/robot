@@ -8,6 +8,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, Conv
                           )
 import correo
 import DB_utility
+import correccion
 
 conexion = DB_utility.DBConnector()
 
@@ -138,13 +139,16 @@ def analisiSentimientosP2(update: Update, context: CallbackContext ):
 
 
 def menuP1(update: Update, context: CallbackContext):
-    text = update.message.text
+    #text = update.message.text
+    text =  correccion.procesamientoMensaje(update.message.text)
+    #print(palabra)
     try:
-        optionMenu = {"1": "Agendar_Cita", "2": "Consulta_Cuenta", "3": "Consulta_Millas", "4": "Bloqueo_Tarjeta", "5":
-                    "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
-        match optionMenu[text]:
+         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
+                  "Desbloqueo_Tarjeta", "generales": "Consultas_Generales", "comentario": "Dejar_Comentario"}
+         match optionMenu[text]:
             case "Agendar_Cita":
                 return citaP1(update, context)
+       
 
             case "Consulta_Cuenta":
                 return consultaCuentaP1(update,context)
