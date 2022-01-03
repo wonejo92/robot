@@ -5573,15 +5573,11 @@ quisiera
 
 millas
 
-bloqueo tarjetas
+bloqueo 
 
 tarjeta
 
 desbloqueo 
-
-bloquear
-
-desbloquear
 
 consultas generales
 

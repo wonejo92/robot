@@ -143,7 +143,7 @@ def menuP1(update: Update, context: CallbackContext):
     text =  correccion.procesamientoMensaje(update.message.text)
     #print(palabra)
     try:
-         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
+         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloqueo": "Bloqueo_Tarjeta", "desbloqueo":
                   "Desbloqueo_Tarjeta", "generales": "Consultas_Generales", "comentario": "Dejar_Comentario"}
          match optionMenu[text]:
             case "Agendar_Cita":
@@ -158,11 +158,11 @@ def menuP1(update: Update, context: CallbackContext):
 
             case "Bloqueo_Tarjeta":
                 global estadoTarjeta 
-                estadoTarjeta = 'bloquear'
+                estadoTarjeta = 'bloqueo'
                 return bloqueoDesbloqueoTarjetaP1(update, context)
 
             case "Desbloqueo_Tarjeta":
-                estadoTarjeta ='desbloquear'
+                estadoTarjeta ='desbloqueo'
                 return bloqueoDesbloqueoTarjetaP1(update, context)
 
             case "Consultas_Generales":
@@ -205,19 +205,21 @@ def citaP4(update: Update, conetext: CallbackContext):
     global horasDisponibles
     global horas2
     global day
-    day = update.message.text
-    mensaje = 'Horarios disponibles para el día: ' + day.capitalize()
-    update.message.reply_text(mensaje)
-    horas = conexion.execute_query(
-        conexion.sql_dict.get("getHourSchedule"), (day,))
-    for h in range(len(horas)):
-        horasDisponibles.append(horas[h][0])
-    for k in range(len(horasDisponibles)):
-        verHorario = str(k+1) +'.' + '\t' + horasDisponibles[k]
-        horas2.append(verHorario)
-    update.message.reply_text('\n'.join(map(str,horas2)))
-    #horas2 = ''
-    return citaP5(update,conetext)
+    try:
+        day = update.message.text
+        horas = conexion.execute_query(
+            conexion.sql_dict.get("getHourSchedule"), (day,))
+        mensaje = 'Horarios disponibles para el día: ' + day.capitalize()
+        update.message.reply_text(mensaje)
+        for h in range(len(horas)):
+            horasDisponibles.append(horas[h][0])
+        for k in range(len(horasDisponibles)):
+            verHorario = str(k+1) +'.' + '\t' + horasDisponibles[k]
+            horas2.append(verHorario)
+        update.message.reply_text('\n'.join(map(str,horas2)))
+        return citaP5(update,conetext)
+    except:
+        update.message.reply_text("Disculpa ese día no estoy disponible !")
 
 def citaP5(update: Update, context: CallbackContext):
     update.message.reply_text('Ingresa la hora que necesites')
@@ -225,10 +227,14 @@ def citaP5(update: Update, context: CallbackContext):
 
 #se registra la cita usando la fecha y la hora, y se da al usuario un codigo para que se presente ante las oficinas con el mismo
 def citaP6(update: Update, context: CallbackContext):
-    numHora = int(update.message.text)
-    hora = horasDisponibles[numHora-1]
-    consultaId=conexion.execute_query(conexion.sql_dict.get("getIdSchedule"),(day,hora))
-    idhora=consultaId[0][0]
+    try:
+        numHora = int(update.message.text)
+        hora = horasDisponibles[numHora-1]
+        consultaId=conexion.execute_query(conexion.sql_dict.get("getIdSchedule"),(day,hora))
+        idhora=consultaId[0][0]
+    except:
+        update.message.text("Disculpa a esa hora no estoy disponible !")
+
     mensaje = 'Todo listo ! \n la cita se agendara a nombre de :\t' + currentUser["nombres"] + '\t' + currentUser["apellidos"]
     update.message.reply_text(mensaje)
     conexion.execute_query(conexion.sql_dict.get("defineSchedule"),(idhora,))
@@ -238,6 +244,8 @@ def citaP6(update: Update, context: CallbackContext):
     conexion.execute_query('commit', None)
     mensaje2 = 'Genial tu cita está agendada 😊 \n Recuerda llegar 10 antes  con el siguiente codigo : '+'\t' + str(codigoCita)
     update.message.reply_text(mensaje2)
+
+    return menu(update,context)
 
 #--------------Consulta de cuenta------------------
 def consultaCuentaP1(update: Update, context: CallbackContext):
@@ -259,6 +267,8 @@ def consultaMillasP1(update: Update, context: CallbackContext):
 def consultaMillasP2(update: Update, context: CallbackContext):
     mensaje = premiosCanjeables(millas)
     update.message.reply_text(mensaje)
+    return menu(update,context)
+    
 
 
 def premiosCanjeables(cantidadDeMillas):
@@ -285,14 +295,14 @@ def ejecutarSentencia2(sentencia,parametro,parametro2):
     
 
 def bloquearDesbloquear(estado, tipo):
-    if estado == 'bloquear':
+    if estado == 'bloqueo':
         if tipo == 'debito':
             ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
             mensaje = 'Su tarjeta de débito ha sido bloqueada'
         if tipo == 'credito':
             ejecutarSentencia2('bloquearTarjeta', 'Credito', currentUser['id'])
             mensaje = 'Su tarjeta de crédito ha sido bloqueada'
-    if estado  == 'desbloquear':
+    if estado  == 'desbloqueo':
         if tipo == 'debito':
             ejecutarSentencia2('desbloquearTarjeta', 'Debito', currentUser['id'])
             mensaje = 'Su tarjeta de débito ha sido desbloqueada'
