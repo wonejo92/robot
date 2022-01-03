@@ -54,8 +54,8 @@ def predict(vectoriser, model, text):
     processes_text = [process_tweets(sen) for sen in text]
     textdata = vectoriser.transform(processes_text)
     sentiment = model.predict(textdata)
-    print(sentiment)
-    return sentiment
+    print("Sentimiento",sentiment[0])
+    return sentiment[0]
 
 
 import pickle
@@ -79,7 +79,9 @@ def predecir(comentario:str):
     print(translation)
     vectoriser, lg = load_models()
     text = [translation]
-    predict(vectoriser, lg, text)
+    sentimiento=predict(vectoriser, lg, text)
+    return sentimiento
+
 
 #if __name__ == "__main__":
     # Loading the models.

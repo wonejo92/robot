@@ -21,7 +21,12 @@ class DBConnector:
         'comprobarTarjeta': 'select numeroTarjeta from tarjeta where Cliente_idCliente = %s',
         'bloquearTarjeta': "UPDATE tarjeta SET estado='Inactiva' where tipoTarjeta = %s and Cliente_idCliente = %s",
         'desbloquearTarjeta': "UPDATE tarjeta SET estado='Activa' where tipoTarjeta = %s and Cliente_idCliente = %s",
-        'buscar_usuario': 'select cedula from CLIENTE'
+        'buscar_usuario': 'select cedula from CLIENTE',
+
+        'guardar_comentario': 'insert into comentario values (%s, %s, %s, %s)'
+
+
+
     }
 
     # Dict containing Error/Message codes related to SQL returns.
@@ -40,7 +45,7 @@ class DBConnector:
         self.db = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='root',
+            password='admin',
             database='chatbot',
             auth_plugin='mysql_native_password'
         )

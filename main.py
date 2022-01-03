@@ -104,6 +104,7 @@ def loginP2(update: Update, context: CallbackContext):
 def loginP3(update: Update, context: CallbackContext):
     global user
     global currentUser
+        
     codigo = update.message.text
     id = user[0][0]
     cedula = user[0][1]
@@ -118,7 +119,7 @@ def loginP3(update: Update, context: CallbackContext):
         # print(currentUser)
         return menu(update, context)
     else:
-        update.message.reply_text('No hemos encontrado tu cuenta !')
+        update.message.reply_text('Codigo incorrecto revise el código e ingrese de nuevo !')
 
 
 
@@ -134,8 +135,24 @@ def analisiSentimientos(update: Update, context: CallbackContext ):
 
 def analisiSentimientosP2(update: Update, context: CallbackContext ):
     text=update.message.text
-    funcionRNN.predecir(text)
+    Respuesta=funcionRNN.predecir(text)
+    print("Sentimiento desde el main",Respuesta)
+    guardarComentario(text,Respuesta)
+    return menu(update,context)
+
+def guardarComentario(comentario:str,sentimiento):
+    global currentUser
+    if(sentimiento==1):
+        conexion.execute_query(conexion.sql_dict.get('guardar_comentario'), (0,comentario,currentUser['id'],"Comentario Positivo"))
+        conexion.execute_query('commit', None)
+    else:
+        conexion.execute_query(conexion.sql_dict.get('guardar_comentario'), (0,comentario,currentUser['id'],"Comentario Negativo"))
+        conexion.execute_query('commit', None) 
     
+
+
+    
+
 
 
 
@@ -316,7 +333,7 @@ def bloquearDesbloquear(estado, tipo):
 
 
 def bloqueoDesbloqueoTarjetaP1(update: Update, context: CallbackContext):
-    mensaje = '1. Débito \n 2. Crédito \n \n Escriba el tipo de tarjeta'
+    mensaje = 'Débito \nCrédito \n \n Escriba el tipo de tarjeta'
     update.message.reply_text(mensaje)
     return tarjetaP2
 
@@ -345,6 +362,7 @@ def bloqueoDesbloqueoTarjeta4(update: Update, context: CallbackContext):
 def bloqueoDesbloqueoTarjetaP5(update: Update, context: CallbackContext):
     global mensajeTarjeta
     update.message.reply_text(mensajeTarjeta)
+    return menu(update,context)
  
         
 

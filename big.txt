@@ -5587,4 +5587,7 @@ transferencia
 
 deposito
 
+debito 
+
+credito
 
