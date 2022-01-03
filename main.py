@@ -51,6 +51,7 @@ millas = ''
 estadoTarjeta = ''
 tipoTarjeta = ''
 mensajeTarjeta = ''
+enviarMensaje = ''
 
 
 
@@ -295,7 +296,6 @@ def ejecutarSentencia2(sentencia,parametro,parametro2):
     
 
 def bloquearDesbloquear(estado, tipo):
-    mensaje = ''
     if estado == 'bloquear':
         if tipo == 'debito':
             ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
@@ -312,6 +312,7 @@ def bloquearDesbloquear(estado, tipo):
             mensaje = 'Su tarjeta de crédito ha sido desbloqueada'
 
     return mensaje 
+
 
 
 def bloqueoDesbloqueoTarjetaP1(update: Update, context: CallbackContext):
@@ -344,6 +345,7 @@ def bloqueoDesbloqueoTarjeta4(update: Update, context: CallbackContext):
 def bloqueoDesbloqueoTarjetaP5(update: Update, context: CallbackContext):
     global mensajeTarjeta
     update.message.reply_text(mensajeTarjeta)
+ 
         
 
 def main() -> None:
