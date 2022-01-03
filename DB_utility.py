@@ -40,7 +40,7 @@ class DBConnector:
         self.db = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='admin',
+            password='root',
             database='chatbot',
             auth_plugin='mysql_native_password'
         )

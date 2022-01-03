@@ -143,7 +143,7 @@ def menuP1(update: Update, context: CallbackContext):
     text =  correccion.procesamientoMensaje(update.message.text)
     #print(palabra)
     try:
-         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloqueo": "Bloqueo_Tarjeta", "desbloqueo":
+         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
                   "Desbloqueo_Tarjeta", "generales": "Consultas_Generales", "comentario": "Dejar_Comentario"}
          match optionMenu[text]:
             case "Agendar_Cita":
@@ -158,11 +158,11 @@ def menuP1(update: Update, context: CallbackContext):
 
             case "Bloqueo_Tarjeta":
                 global estadoTarjeta 
-                estadoTarjeta = 'bloqueo'
+                estadoTarjeta = 'bloquear'
                 return bloqueoDesbloqueoTarjetaP1(update, context)
 
             case "Desbloqueo_Tarjeta":
-                estadoTarjeta ='desbloqueo'
+                estadoTarjeta ='desbloquear'
                 return bloqueoDesbloqueoTarjetaP1(update, context)
 
             case "Consultas_Generales":
@@ -295,14 +295,15 @@ def ejecutarSentencia2(sentencia,parametro,parametro2):
     
 
 def bloquearDesbloquear(estado, tipo):
-    if estado == 'bloqueo':
+    mensaje = ''
+    if estado == 'bloquear':
         if tipo == 'debito':
             ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
             mensaje = 'Su tarjeta de débito ha sido bloqueada'
         if tipo == 'credito':
             ejecutarSentencia2('bloquearTarjeta', 'Credito', currentUser['id'])
             mensaje = 'Su tarjeta de crédito ha sido bloqueada'
-    if estado  == 'desbloqueo':
+    if estado  == 'desbloquear':
         if tipo == 'debito':
             ejecutarSentencia2('desbloquearTarjeta', 'Debito', currentUser['id'])
             mensaje = 'Su tarjeta de débito ha sido desbloqueada'
