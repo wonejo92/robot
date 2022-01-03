@@ -53,10 +53,6 @@ mensajeTarjeta = ''
 
 
 
-
-GENDER, PHOTO, LOCATION, BIO = range(4)
-
-
 def start(update: Update, context: CallbackContext):
     """Starts the conversation and asks the user about their gender."""
     update.message.reply_text('Hola soy CORA 😉, tu asistente virtual !! \n\n '
@@ -88,16 +84,19 @@ def loginP1(update: Update, context: CallbackContext):
 
 def loginP2(update: Update, context: CallbackContext):
     global user
-    cedula = update.message.text
-    print("Mensaje en loginp2", cedula)
-    user = conexion.execute_query(
+    try:
+        cedula = update.message.text
+        print("Mensaje en loginp2", cedula)        
+        user = conexion.execute_query(
         conexion.sql_dict.get('getClient'), (cedula,))
-    email = user[0][4]
-    token = user[0][5]
-    correo.send_email(email, token)
-    update.message.reply_text(
-        'Ingresa el codigo que se te envio al correo Electronico registrado !')
-    return estadologinP2
+        email = user[0][4]
+        token = user[0][5]
+        correo.send_email(email, token)
+        update.message.reply_text('Ingresa el codigo que se te envio al correo Electronico registrado !')
+        return estadologinP2
+    except:
+        update.message.reply_text('Algo salio mal revisa tu numero de celuda e ingresa de nuevo')
+
 
 
 def loginP3(update: Update, context: CallbackContext):
@@ -140,32 +139,36 @@ def analisiSentimientosP2(update: Update, context: CallbackContext ):
 
 def menuP1(update: Update, context: CallbackContext):
     text = update.message.text
-    optionMenu = {"1": "Agendar_Cita", "2": "Consulta_Cuenta", "3": "Consulta_Millas", "4": "Bloqueo_Tarjeta", "5":
-                  "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
-    match optionMenu[text]:
-        case "Agendar_Cita":
-            return citaP1(update, context)
+    try:
+        optionMenu = {"1": "Agendar_Cita", "2": "Consulta_Cuenta", "3": "Consulta_Millas", "4": "Bloqueo_Tarjeta", "5":
+                    "Desbloqueo_Tarjeta", "6": "Consultas_Generales", "7": "Dejar_Comentario"}
+        match optionMenu[text]:
+            case "Agendar_Cita":
+                return citaP1(update, context)
 
-        case "Consulta_Cuenta":
-            return consultaCuentaP1(update,context)
+            case "Consulta_Cuenta":
+                return consultaCuentaP1(update,context)
 
-        case "Consulta_Millas":
-            return consultaMillasP1(update,context)
+            case "Consulta_Millas":
+                return consultaMillasP1(update,context)
 
-        case "Bloqueo_Tarjeta":
-            global estadoTarjeta 
-            estadoTarjeta = 'bloquear'
-            return bloqueoDesbloqueoTarjetaP1(update, context)
+            case "Bloqueo_Tarjeta":
+                global estadoTarjeta 
+                estadoTarjeta = 'bloquear'
+                return bloqueoDesbloqueoTarjetaP1(update, context)
 
-        case "Desbloqueo_Tarjeta":
-            estadoTarjeta ='desbloquear'
-            return bloqueoDesbloqueoTarjetaP1(update, context)
+            case "Desbloqueo_Tarjeta":
+                estadoTarjeta ='desbloquear'
+                return bloqueoDesbloqueoTarjetaP1(update, context)
 
-        case "Consultas_Generales":
-            update.message.reply_text('consultas generales')
+            case "Consultas_Generales":
+                update.message.reply_text('consultas generales')
 
-        case "Dejar_Comentario":
-            return analisiSentimientos(update,context)
+            case "Dejar_Comentario":
+                return analisiSentimientos(update,context)
+    except:
+        update.message.reply_text("Opcion incorrecta ingresa solo opciones del menu !!")
+        return menu(update,context)
 
 #--------------Agendar Cita------------------
 def citaP1(update: Update, context: CallbackContext):
@@ -237,6 +240,7 @@ def consultaCuentaP1(update: Update, context: CallbackContext):
     account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
     mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
     update.message.reply_text(mensaje)
+    return menu(update,context)
 
 #--------------Consulta de millas------------------
 def consultaMillasP1(update: Update, context: CallbackContext):
@@ -348,9 +352,6 @@ def main() -> None:
             tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
             tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)],
             analisisSentimiento:[MessageHandler(Filters.text,analisiSentimientosP2)]
-            
-            
-
         },
         fallbacks=[],
     )

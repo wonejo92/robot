@@ -40,8 +40,9 @@ class DBConnector:
         self.db = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='root',
-            database='chatbot'
+            password='admin',
+            database='chatbot',
+            auth_plugin='mysql_native_password'
         )
 
     def execute_query(self, sql_query: str, parameters: tuple):
