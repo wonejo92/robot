@@ -12,18 +12,17 @@ class DBConnector:
         'getIdSchedule': 'select idHorario from horario where dia_semana= %s and hora= %s',
         'defineSchedule': ' update horario set disponibilidad='+"'Ocupado'"+ ' where idHorario= %s',
         'createAppointment': 'insert into cita values (%s, %s, %s, %s, %s, %s,%s )',
-
         'accountInquiry': 'select numeroDeCuenta, fechaCreacion, monto, tipo from cuenta cu, cliente cli'
                           ' where cu.Cliente_idCliente = cli.idCliente and cli.nombres= %s',
-
         'obtenerIdTarjeta': 'select idTarjeta from tarjeta where Cliente_idCliente = %s',
         'obtenerMillas': 'select cantidadMillas from millas where Tarjeta_idTarjeta = %s',
         'comprobarTarjeta': 'select numeroTarjeta from tarjeta where Cliente_idCliente = %s',
         'bloquearTarjeta': "UPDATE tarjeta SET estado='Inactiva' where tipoTarjeta = %s and Cliente_idCliente = %s",
         'desbloquearTarjeta': "UPDATE tarjeta SET estado='Activa' where tipoTarjeta = %s and Cliente_idCliente = %s",
         'buscar_usuario': 'select cedula from CLIENTE',
-
-        'guardar_comentario': 'insert into comentario values (%s, %s, %s, %s)'
+        'guardar_comentario': 'insert into comentario values (%s, %s, %s, %s)',
+        'obtener_preguntas': 'select pregunta from preguntas',
+        'obtener_respuesta':'select respuesta from respuestas where Preguntas_idPreguntas = %s'
 
 
 
@@ -45,7 +44,7 @@ class DBConnector:
         self.db = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='admin',
+            password='root',
             database='chatbot',
             auth_plugin='mysql_native_password'
         )

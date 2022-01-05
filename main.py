@@ -30,11 +30,15 @@ agendarCitaP3 = 2.2
 agendarCitaP4 = 2.3
 agendarCitaP6 = 2.4
 
+
 consultarP1 = 3.1
 
 tarjetaP2 = 4
 tarjetaP4 = 4.2
+
 analisisSentimiento=7.1
+
+ayudaP1 = 8
 
 
 
@@ -124,7 +128,7 @@ def loginP3(update: Update, context: CallbackContext):
 
 
 def menu(update: Update, context: CallbackContext):
-    mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Consultas Generales \n 7. Dejar un comentario \n'
+    mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Ayuda \n 7. Dejar un comentario \n'
     update.message.reply_text(mensaje)
     return estadoMenuP1
 
@@ -162,7 +166,7 @@ def menuP1(update: Update, context: CallbackContext):
     #print(palabra)
     try:
          optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
-                  "Desbloqueo_Tarjeta", "generales": "Consultas_Generales", "comentario": "Dejar_Comentario"}
+                  "Desbloqueo_Tarjeta", "ayuda": "Consultas_Generales", "comentario": "Dejar_Comentario"}
          match optionMenu[text]:
             case "Agendar_Cita":
                 return citaP1(update, context)
@@ -184,7 +188,7 @@ def menuP1(update: Update, context: CallbackContext):
                 return bloqueoDesbloqueoTarjetaP1(update, context)
 
             case "Consultas_Generales":
-                update.message.reply_text('consultas generales')
+                return consultasGenerales(update,context)
 
             case "Dejar_Comentario":
                 return analisiSentimientos(update,context)
@@ -364,7 +368,25 @@ def bloqueoDesbloqueoTarjetaP5(update: Update, context: CallbackContext):
     update.message.reply_text(mensajeTarjeta)
     return menu(update,context)
  
-        
+#------------------------Consultas Generales-----------------
+
+def consultasGenerales(update: Update, context: CallbackContext):
+    mostrarPreguntas = []
+    preguntas = conexion.execute_query(conexion.sql_dict.get('obtener_preguntas'),())
+    for i in range(len(preguntas)):
+        mostrarPreguntas.append(preguntas[i][0])
+    mensaje = '\n'.join(map(str,mostrarPreguntas))
+    mensaje2 = '¿Qué deseas saber?\n\n' + mensaje
+    update.message.reply_text(mensaje2)
+    return ayudaP1
+
+def consultasGeneralesP1(update: Update, context: CallbackContext):
+    text = update.message.text
+    mensaje = correccion.obtenerRespuesta(text)
+    update.message.reply_text(mensaje)
+    return menu(update,context)
+    
+
 
 def main() -> None:
     """Run the bot."""
@@ -386,7 +408,8 @@ def main() -> None:
             agendarCitaP6:[MessageHandler(Filters.text,citaP6)],
             tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
             tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)],
-            analisisSentimiento:[MessageHandler(Filters.text,analisiSentimientosP2)]
+            analisisSentimiento:[MessageHandler(Filters.text,analisiSentimientosP2)],
+            ayudaP1:[MessageHandler(Filters.text, consultasGeneralesP1)]
         },
         fallbacks=[],
     )

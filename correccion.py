@@ -1,10 +1,14 @@
 import re
 from collections import Counter
 from nltk import text
+from nltk import tokenize
 
 from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
 
-
+import DB_utility
+conexion = DB_utility.DBConnector()
 
 
 def words(text): return re.findall(r'\w+', text.lower())
@@ -51,14 +55,94 @@ def edits2(word):
 
 
 
+
 def procesamientoMensaje(texto):
-    menu = ['cita', 'cuenta', 'millas', 'bloquear', 'desbloquear', 'generales','comentario']
+    menu = ['cita', 'cuenta', 'millas', 'bloquear', 'desbloquear', 'ayuda','comentario']
     mensaje = word_tokenize(texto)
     mensajeCorregido = []
     for i in range(0,len(mensaje)):
         mensajeCorregido.append(correction(mensaje[i]))
         if mensajeCorregido[i] in menu:
             return mensajeCorregido[i]
+
+
+stemmer = PorterStemmer()
+stop_words = set(stopwords.words('spanish'))
+
+def datos(datosDB):
+    vector = []
+    for i in range(len(datosDB)):
+        vector.append(datosDB[i][0])
+    return vector
+
+def ejecutarSentencia(sentencia,parametro):
+    dato = conexion.execute_query(conexion.sql_dict.get(sentencia),(parametro,))
+    return dato
+
+def procesamientoPreguntasRespuestas2(mensaje):
+    mensaje = word_tokenize(mensaje)
+    for i  in range(len(mensaje)):
+        mensaje[i] = stemmer.stem(mensaje[i])
+    clean_tokens = mensaje[:]
+    for token in mensaje:
+        if  token in stop_words:
+            clean_tokens.remove(token)
+    return clean_tokens
+
+def procesamientoPreguntasRespuestas():
+    preguntasDB = conexion.execute_query(conexion.sql_dict.get('obtener_preguntas'),())
+    preguntas = []
+    textos = []
+    for i in range(len(preguntasDB)):
+        preguntas.append(preguntasDB[i][0])
+    for j in range(len(preguntas)):
+        textos+=procesamientoPreguntasRespuestas2(preguntas[j])
+    textos.remove('hacer')
+    return textos
+
+def obtenerRespuesta(mensaje):
+    pregunta = procesamientoPreguntasRespuestas2(mensaje)
+    for i in range(len(pregunta)):
+        if pregunta[i] == 'horario':
+            numero = 1
+        if pregunta[i] == 'atencion':
+            numero = 1
+        if pregunta[i] == 'contacto':
+            numero = 2
+        if pregunta[i] == 'sucursal':
+            numero = 3
+        if pregunta[i] == 'transaccion':
+            numero = 4
+        if pregunta[i] == 'linea':
+            numero = 4
+    respuestasDB = ejecutarSentencia('obtener_respuesta',numero)
+    respuesta = datos(respuestasDB)
+    respuesta = respuesta[0].split('#')
+    respuesta = '\n'.join(map(str,respuesta))
+    return respuesta
+
+
+
+
+            
+
+    
+
+        
+
+
+    
+
+
+        
+
+    
+
+    
+    
+
+    
+
 
     
 
