@@ -1,3 +1,4 @@
+from nltk import text
 import RNN.RNN as funcionRNN
 import logging
 from os import curdir
@@ -40,6 +41,7 @@ analisisSentimiento=7.1
 
 ayudaP1 = 8
 
+consultaCuenta = 9
 
 
 # Variables
@@ -84,8 +86,9 @@ def loginP1(update: Update, context: CallbackContext):
         update.message.reply_text('Ingresa tu Numero de Cedula !')
         return estadologinP1
     else:
-        update.message.reply_text(
-            'Procederemos a agendarte una cita para crearte una cuenta.')
+        return citaP1(update,context)
+
+
 
 
 def loginP2(update: Update, context: CallbackContext):
@@ -123,12 +126,12 @@ def loginP3(update: Update, context: CallbackContext):
         # print(currentUser)
         return menu(update, context)
     else:
-        update.message.reply_text('Codigo incorrecto revise el código e ingrese de nuevo !')
+        update.message.reply_text('Código incorrecto revise el código e ingrese de nuevo !')
 
 
 
 def menu(update: Update, context: CallbackContext):
-    mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Como te ayudo ? \n\n 1. Agendar una cita \n 2. Consulta de cuenta \n 3. Consulta de millas \n 4. Bloqueo de Tarjetas \n 5. Desbloqueo de tarjetas \n 6. Ayuda \n 7. Dejar un comentario \n'
+    mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Cómo te ayudo ? \n\n ❇️ Agendar una cita \n\n ❇️ Consulta de cuenta \n\n ❇️ Consulta de millas \n\n ❇️ Bloqueo de Tarjetas \n\n ❇️ Desbloqueo de tarjetas \n\n ❇️ Ayuda \n\n ❇️ Dejar un comentario \n\n'
     update.message.reply_text(mensaje)
     return estadoMenuP1
 
@@ -142,6 +145,7 @@ def analisiSentimientosP2(update: Update, context: CallbackContext ):
     Respuesta=funcionRNN.predecir(text)
     print("Sentimiento desde el main",Respuesta)
     guardarComentario(text,Respuesta)
+    update.message.reply_text('! Tú opinión me ayuda a mejorar gracias ¡')
     return menu(update,context)
 
 def guardarComentario(comentario:str,sentimiento):
@@ -173,7 +177,7 @@ def menuP1(update: Update, context: CallbackContext):
        
 
             case "Consulta_Cuenta":
-                return consultaCuentaP1(update,context)
+                return consultaCuentaP2(update,context)
 
             case "Consulta_Millas":
                 return consultaMillasP1(update,context)
@@ -249,6 +253,7 @@ def citaP5(update: Update, context: CallbackContext):
 
 #se registra la cita usando la fecha y la hora, y se da al usuario un codigo para que se presente ante las oficinas con el mismo
 def citaP6(update: Update, context: CallbackContext):
+    
     try:
         numHora = int(update.message.text)
         hora = horasDisponibles[numHora-1]
@@ -256,33 +261,59 @@ def citaP6(update: Update, context: CallbackContext):
         idhora=consultaId[0][0]
     except:
         update.message.text("Disculpa a esa hora no estoy disponible !")
-
-    mensaje = 'Todo listo ! \n la cita se agendara a nombre de :\t' + currentUser["nombres"] + '\t' + currentUser["apellidos"]
-    update.message.reply_text(mensaje)
+    
     conexion.execute_query(conexion.sql_dict.get("defineSchedule"),(idhora,))
     conexion.execute_query('commit', None)
     codigoCita=random.randint(1000, 9999)
-    conexion.execute_query(conexion.sql_dict.get("createAppointment"),(0,codigoCita,day,hora,'SI',currentUser["id"],idhora))
-    conexion.execute_query('commit', None)
-    mensaje2 = 'Genial tu cita está agendada 😊 \n Recuerda llegar 10 antes  con el siguiente codigo : '+'\t' + str(codigoCita)
-    update.message.reply_text(mensaje2)
+    try:
+        nombre = str(currentUser['nombres']).split()
+        conexion.execute_query(conexion.sql_dict.get("createAppointment"),(0,codigoCita,day,hora,'SI',currentUser["id"],idhora))
+        conexion.execute_query('commit', None)
+        mensaje = 'Tu cita esta agendada \t' + nombre[0].capitalize() +'\t llega 10 minutos antes  con el siguiente código : '+'\t' + str(codigoCita)
+        update.message.reply_text(mensaje)
+        return menu(update,context)
+    except:
+        conexion.execute_query(conexion.sql_dict.get("createAppointment"),(0,codigoCita,day,hora,'SI',3,idhora))
+        conexion.execute_query('commit', None)
+        mensaje = 'Tú cita esta agendada  llega 10 minutos antes  con el siguiente código : '+'\t' + str(codigoCita) + '\t ✅'
+        update.message.reply_text(mensaje)
+        return start(update,context)
+        
 
-    return menu(update,context)
+
+    
+    
+    
 
 #--------------Consulta de cuenta------------------
+
+def consultaCuentaP2(update: Update, context: CallbackContext):
+    update.message.reply_text('Escribe el código de verficación enviado a tu correo electronico')
+    return consultaCuenta
+    
+
 def consultaCuentaP1(update: Update, context: CallbackContext):
-    account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
-    mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
-    update.message.reply_text(mensaje)
-    return menu(update,context)
+    text = update.message.text
+    if text == currentUser['token']:
+        account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
+        mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
+        update.message.reply_text(mensaje)
+        return menu(update,context)
+    else:
+        update.message.reply_text('El código ingresado es incorrecto')
+    
+    
 
 #--------------Consulta de millas------------------
+
+
+
 def consultaMillasP1(update: Update, context: CallbackContext):
     global millas 
     numeroTarjeta = conexion.execute_query(conexion.sql_dict.get("obtenerIdTarjeta"),(currentUser['id'],))
     cantidadMillas = conexion.execute_query(conexion.sql_dict.get('obtenerMillas'),(numeroTarjeta[0][0],))
     millas = cantidadMillas[0][0]
-    mensaje = 'Sus millas son:'+ '\t' + str(cantidadMillas[0][0])
+    mensaje = 'Tus millas son:'+ '\t' + str(cantidadMillas[0][0])
     update.message.reply_text(mensaje)
     return consultaMillasP2(update, context)
 
@@ -409,7 +440,8 @@ def main() -> None:
             tarjetaP2:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjetaP2)],
             tarjetaP4:[MessageHandler(Filters.text, bloqueoDesbloqueoTarjeta4)],
             analisisSentimiento:[MessageHandler(Filters.text,analisiSentimientosP2)],
-            ayudaP1:[MessageHandler(Filters.text, consultasGeneralesP1)]
+            ayudaP1:[MessageHandler(Filters.text, consultasGeneralesP1)],
+            consultaCuenta:[MessageHandler(Filters.text,consultaCuentaP1)]
         },
         fallbacks=[],
     )

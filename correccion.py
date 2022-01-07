@@ -107,7 +107,7 @@ def obtenerRespuesta(mensaje):
             numero = 1
         if pregunta[i] == 'atencion':
             numero = 1
-        if pregunta[i] == 'contacto':
+        if pregunta[i] == 'cony yo letacto':
             numero = 2
         if pregunta[i] == 'sucursal':
             numero = 3
