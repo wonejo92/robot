@@ -22,7 +22,8 @@ class DBConnector:
         'buscar_usuario': 'select cedula from CLIENTE',
         'guardar_comentario': 'insert into comentario values (%s, %s, %s, %s)',
         'obtener_preguntas': 'select pregunta from preguntas',
-        'obtener_respuesta':'select respuesta from respuestas where Preguntas_idPreguntas = %s'
+        'obtener_respuesta':'select respuesta from respuestas where Preguntas_idPreguntas = %s',
+        'nuevo_token':'update cliente set token = %s where cedula = %s'
 
 
 

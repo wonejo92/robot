@@ -123,12 +123,17 @@ def loginP3(update: Update, context: CallbackContext):
         # print("Persona Verificada")
         currentUser = {"id": id, "cedula": cedula, "nombres": nombres, "apellidos": apellidos, "correo": email,
                        "token": token}
-        # print(currentUser)
+      
+        currentUser['token'] = str(crearNuevoToken())
+        ejecutarSentencia2('nuevo_token',str(currentUser['token'] ),currentUser['cedula'])
+        print(currentUser)
         return menu(update, context)
     else:
         update.message.reply_text('Código incorrecto revise el código e ingrese de nuevo !')
 
-
+def crearNuevoToken():
+    token = round(random.uniform(1000,9999))
+    return token
 
 def menu(update: Update, context: CallbackContext):
     mensaje = 'Hola ' +currentUser["nombres"]+ '\t' + currentUser["apellidos"] + ' ! \n \n' + '¿ Cómo te ayudo ? \n\n ❇️ Agendar una cita \n\n ❇️ Consulta de cuenta \n\n ❇️ Consulta de millas \n\n ❇️ Bloqueo de Tarjetas \n\n ❇️ Desbloqueo de tarjetas \n\n ❇️ Ayuda \n\n ❇️ Dejar un comentario \n\n'
@@ -289,6 +294,7 @@ def citaP6(update: Update, context: CallbackContext):
 
 def consultaCuentaP2(update: Update, context: CallbackContext):
     update.message.reply_text('Escribe el código de verficación enviado a tu correo electronico')
+    correo.send_email(currentUser['correo'],currentUser['token'])
     return consultaCuenta
     
 
@@ -298,6 +304,9 @@ def consultaCuentaP1(update: Update, context: CallbackContext):
         account=conexion.execute_query(conexion.sql_dict.get("accountInquiry"),(currentUser["nombres"],))
         mensaje = 'Número de cuenta: ' + account[0][0] + ' \n Fecha de creación: ' + account[0][1] + '\n Monto en USD: ' + str(account[0][2]) + '\n Tipo: ' + account[0][3]
         update.message.reply_text(mensaje)
+        currentUser['token'] = str(crearNuevoToken())
+        ejecutarSentencia2('nuevo_token',str(currentUser['token'] ),currentUser['cedula'])
+        print(currentUser)
         return menu(update,context)
     else:
         update.message.reply_text('El código ingresado es incorrecto')
@@ -397,6 +406,9 @@ def bloqueoDesbloqueoTarjeta4(update: Update, context: CallbackContext):
 def bloqueoDesbloqueoTarjetaP5(update: Update, context: CallbackContext):
     global mensajeTarjeta
     update.message.reply_text(mensajeTarjeta)
+    currentUser['token'] = str(crearNuevoToken())
+    ejecutarSentencia2('nuevo_token',str(currentUser['token'] ),currentUser['cedula'])
+    print(currentUser)
     return menu(update,context)
  
 #------------------------Consultas Generales-----------------
