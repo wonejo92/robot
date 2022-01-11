@@ -219,7 +219,7 @@ def citaP2(update: Update, context: CallbackContext):
     for i in range(len(horario)):
         diasDisponibles.append(horario[i][0])
     for j in range(len(diasDisponibles)):
-        dias.append(diasDisponibles[j].capitalize())
+        dias.append('🔸'+diasDisponibles[j].capitalize())
     update.message.reply_text('\n'.join(map(str, dias)))
     #dias = ''
     return citaP3(update,context)
