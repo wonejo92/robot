@@ -58,6 +58,7 @@ def edits2(word):
 
 def procesamientoMensaje(texto):
     menu = ['cita', 'cuenta', 'millas', 'bloquear', 'desbloquear', 'ayuda','comentario']
+    texto = normalize(texto)
     mensaje = word_tokenize(texto)
     mensajeCorregido = []
     for i in range(0,len(mensaje)):
@@ -80,6 +81,7 @@ def ejecutarSentencia(sentencia,parametro):
     return dato
 
 def procesamientoPreguntasRespuestas2(mensaje):
+    mensaje = normalize(mensaje)
     mensaje = word_tokenize(mensaje)
     for i  in range(len(mensaje)):
         mensaje[i] = stemmer.stem(mensaje[i])
@@ -107,7 +109,7 @@ def obtenerRespuesta(mensaje):
             numero = 1
         if pregunta[i] == 'atencion':
             numero = 1
-        if pregunta[i] == 'cony yo letacto':
+        if pregunta[i] == 'contacto':
             numero = 2
         if pregunta[i] == 'sucursal':
             numero = 3
@@ -121,6 +123,19 @@ def obtenerRespuesta(mensaje):
     respuesta = '\n'.join(map(str,respuesta))
     return respuesta
 
+def normalize(s):
+    replacements = (
+        ("á", "a"),
+        ("é", "e"),
+        ("í", "i"),
+        ("ó", "o"),
+        ("ú", "u"),
+    )
+    for a, b in replacements:
+        s = s.replace(a, b).replace(a.upper(), b.upper())
+    return s.lower()
+
+print(normalize('Débito'))
 
 
 

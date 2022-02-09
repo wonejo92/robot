@@ -150,3 +150,9 @@ def bloqueoDesbloqueoTarjeta(estado):
 
 def Consultas_Generales():
     print('funciona')
+
+
+
+
+
+

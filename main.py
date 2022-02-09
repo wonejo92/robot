@@ -82,7 +82,8 @@ def start(update: Update, context: CallbackContext):
 
 def loginP1(update: Update, context: CallbackContext):
     text = update.message.text
-    if(text == 'si'):
+    text = correccion.normalize(text)
+    if(text.lower() == 'si'):
         update.message.reply_text('Ingresa tu Numero de Cedula !')
         return estadologinP1
     else:
@@ -357,6 +358,7 @@ def ejecutarSentencia2(sentencia,parametro,parametro2):
     
 
 def bloquearDesbloquear(estado, tipo):
+    mensaje = ''
     if estado == 'bloquear':
         if tipo == 'debito':
             ejecutarSentencia2('bloquearTarjeta', 'Debito', currentUser['id'])
@@ -371,7 +373,6 @@ def bloquearDesbloquear(estado, tipo):
         if tipo == 'credito':
             ejecutarSentencia2('desbloquearTarjeta', 'Credito', currentUser['id'])
             mensaje = 'Su tarjeta de crédito ha sido desbloqueada'
-
     return mensaje 
 
 
@@ -385,7 +386,7 @@ def bloqueoDesbloqueoTarjetaP1(update: Update, context: CallbackContext):
 
 def bloqueoDesbloqueoTarjetaP2(update: Update, context: CallbackContext):
     global tipoTarjeta 
-    tipoTarjeta = update.message.text
+    tipoTarjeta = correccion.normalize(update.message.text)
     dato = ejecutarSentencia('comprobarTarjeta',currentUser['id'])
     if dato[0][0] is not None:
         correo.send_email(currentUser['correo'],currentUser['token'])
@@ -434,7 +435,7 @@ def consultasGeneralesP1(update: Update, context: CallbackContext):
 def main() -> None:
     """Run the bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater("2072414162:AAHuEcnXbkKTCUucD0wRFy3l7bVkT08PiPs")
+    updater = Updater("2032337510:AAHV9z41Q4WvXS3J3xUVF6d-HJUnw0-f4eM")
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher

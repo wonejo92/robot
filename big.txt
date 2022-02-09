@@ -5593,5 +5593,7 @@ deposito
 
 debito 
 
+Débito
+
 credito
 
