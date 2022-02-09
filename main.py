@@ -151,7 +151,10 @@ def analisiSentimientosP2(update: Update, context: CallbackContext ):
     Respuesta=funcionRNN.predecir(text)
     print("Sentimiento desde el main",Respuesta)
     guardarComentario(text,Respuesta)
-    update.message.reply_text('! Tú opinión me ayuda a mejorar gracias ¡')
+    if(Respuesta==0):
+        update.message.reply_text('Tu comentario se clasifico como Negativo \n ! Tú opinión me ayuda a mejorar gracias 😔 ¡')
+    else:
+        update.message.reply_text('Tu comentario se clasifico como Positivo \n ! Seguire mejorando para tu servicio 😊 ¡')
     return menu(update,context)
 
 def guardarComentario(comentario:str,sentimiento):
