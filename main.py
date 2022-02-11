@@ -176,9 +176,9 @@ def guardarComentario(comentario:str,sentimiento):
 def menuP1(update: Update, context: CallbackContext):
     #text = update.message.text
     text =  correccion.procesamientoMensaje(update.message.text)
-    #print(palabra)
+    
     try:
-         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "millas": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
+         optionMenu = {"cita": "Agendar_Cita", "cuenta": "Consulta_Cuenta", "milla": "Consulta_Millas", "bloquear": "Bloqueo_Tarjeta", "desbloquear":
                   "Desbloqueo_Tarjeta", "ayuda": "Consultas_Generales", "comentario": "Dejar_Comentario"}
          match optionMenu[text]:
             case "Agendar_Cita":
@@ -189,6 +189,7 @@ def menuP1(update: Update, context: CallbackContext):
                 return consultaCuentaP2(update,context)
 
             case "Consulta_Millas":
+                print('texto recibido si llega',text)
                 return consultaMillasP1(update,context)
 
             case "Bloqueo_Tarjeta":
@@ -322,10 +323,14 @@ def consultaCuentaP1(update: Update, context: CallbackContext):
 
 
 def consultaMillasP1(update: Update, context: CallbackContext):
+    print('entro a funcion')
     global millas 
-    numeroTarjeta = conexion.execute_query(conexion.sql_dict.get("obtenerIdTarjeta"),(currentUser['id'],))
+    numeroTarjeta = conexion.execute_query(conexion.sql_dict.get('obtenerIdTarjeta'), (currentUser['id'], 'Credito',))
+    print(numeroTarjeta[0][0])
     cantidadMillas = conexion.execute_query(conexion.sql_dict.get('obtenerMillas'),(numeroTarjeta[0][0],))
+    print(cantidadMillas)
     millas = cantidadMillas[0][0]
+    print(millas)
     mensaje = 'Tus millas son:'+ '\t' + str(cantidadMillas[0][0])
     update.message.reply_text(mensaje)
     return consultaMillasP2(update, context)

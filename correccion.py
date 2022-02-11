@@ -57,12 +57,14 @@ def edits2(word):
 
 
 def procesamientoMensaje(texto):
-    menu = ['cita', 'cuenta', 'millas', 'bloquear', 'desbloquear', 'ayuda','comentario']
+    menu = ['cita', 'cuenta', 'milla', 'bloquear', 'desbloquear', 'ayuda','comentario']
     texto = normalize(texto)
     mensaje = word_tokenize(texto)
     mensajeCorregido = []
+    
     for i in range(0,len(mensaje)):
         mensajeCorregido.append(correction(mensaje[i]))
+        print(mensajeCorregido)
         if mensajeCorregido[i] in menu:
             return mensajeCorregido[i]
 

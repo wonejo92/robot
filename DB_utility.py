@@ -14,7 +14,7 @@ class DBConnector:
         'createAppointment': 'insert into cita values (%s, %s, %s, %s, %s, %s,%s )',
         'accountInquiry': 'select numeroDeCuenta, fechaCreacion, monto, tipo from cuenta cu, cliente cli'
                           ' where cu.Cliente_idCliente = cli.idCliente and cli.nombres= %s',
-        'obtenerIdTarjeta': 'select idTarjeta from tarjeta where Cliente_idCliente = %s',
+        'obtenerIdTarjeta': 'select idTarjeta from tarjeta where Cliente_idCliente = %s and tipoTarjeta = %s',
         'obtenerMillas': 'select cantidadMillas from millas where Tarjeta_idTarjeta = %s',
         'comprobarTarjeta': 'select numeroTarjeta from tarjeta where Cliente_idCliente = %s',
         'bloquearTarjeta': "UPDATE tarjeta SET estado='Inactiva' where tipoTarjeta = %s and Cliente_idCliente = %s",
