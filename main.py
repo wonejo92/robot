@@ -226,7 +226,7 @@ def citaP2(update: Update, context: CallbackContext):
     for j in range(len(diasDisponibles)):
         dias.append('🔸'+diasDisponibles[j].capitalize())
     update.message.reply_text('\n'.join(map(str, dias)))
-    #dias = ''
+    dias = ''
     return citaP3(update,context)
 
 
@@ -347,7 +347,7 @@ def premiosCanjeables(cantidadDeMillas):
     if cantidadDeMillas < 89 :
         return 'No cuentas actualmente con premios canjeables'
     if cantidadDeMillas <= 100 and cantidadDeMillas >= 90:
-        return 'Felicidades ! acabas de ganar una orden de consumo de: \n 20.00 dolares en Pizza Hut, presentate en el establecimiento para \n reclamar el premio'
+        return 'Felicidades ! acabas de ganar una orden de consumo de: \n 20.00 dolares en Pizza Hut, presentate en el establecimiento para reclamar el premio'
     if cantidadDeMillas <= 500 and cantidadDeMillas >= 300:
         return'Felicidades ! acabas de ganar un noche gratis en el hostal \n Rancho Dorado, acercate al hostal para reclamar tu premio'
     if cantidadDeMillas <= 5000 and cantidadDeMillas >= 4000:
