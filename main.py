@@ -1,5 +1,5 @@
 from nltk import text
-import RNN.RNN as funcionRNN
+import RNN.analisisDeSentimientos as analisar
 import logging
 from os import curdir
 import random
@@ -148,13 +148,13 @@ def analisiSentimientos(update: Update, context: CallbackContext ):
 
 def analisiSentimientosP2(update: Update, context: CallbackContext ):
     text=update.message.text
-    Respuesta=funcionRNN.predecir(text)
+    Respuesta=analisar.predecir(text)
     print("Sentimiento desde el main",Respuesta)
     guardarComentario(text,Respuesta)
     if(Respuesta==0):
-        update.message.reply_text('Tu comentario se clasifico como Negativo \n ! Tú opinión me ayuda a mejorar gracias 😔 ¡')
+        update.message.reply_text('Tu comentario se clasifico como Negativo \n ! Tú opinión me ayuda a mejorar gracias 😔¡')
     else:
-        update.message.reply_text('Tu comentario se clasifico como Positivo \n ! Seguire mejorando para tu servicio 😊 ¡')
+        update.message.reply_text('Tu comentario se clasifico como Positivo \n ! Seguire mejorando para tu servicio 😊¡')
     return menu(update,context)
 
 def guardarComentario(comentario:str,sentimiento):
